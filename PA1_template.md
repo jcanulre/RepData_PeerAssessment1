@@ -262,6 +262,6 @@ print(medianPerDay2)
 
 Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-Yes these values differ from the estimates from the first part. Imputing missing data impacted on the estimates as there are no NA median values now. Also, latter histogram shows a decrease in the frequency for the range 0-5000, and there is an increase in frequency for the range 10000-15000, that is fixed NAs added up to this range of number of steps taken. 
+Yes these values differ from the estimates from the first part. Imputing missing data impacted on the estimates as there are no NA median values now. Also, latter histogram shows a decrease in the frequency for the range 0-5000, and there is an increase in frequency for the range 10000-15000, that is fixed NAs added up to this range of number of steps taken. The data distribution actually looks more normal. 
 
 ## Are there differences in activity patterns between weekdays and weekends?
