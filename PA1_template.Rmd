@@ -15,7 +15,7 @@ dat <- read.csv("activity.csv")
 
 1. Calculate the total number of steps taken per day
 ```{r}
-stepsAday <- as.vector(tapply(dat$steps, dat$date, sum, na.rm=TRUE))
+stepsAday <- as.vector(tapply(dat$steps, dat$date, sum))
 ```
 
 2. Make a histogram of the total number of steps taken each day
@@ -27,14 +27,14 @@ hist(stepsAday, xlab="Steps taken", main="Histogram of Total Number of Steps Tak
 
 Mean calculation
 ```{r}
-meanPerDay <- tapply(dat$steps, dat$date, mean, na.rm=TRUE)
+meanPerDay <- mean(stepsAday, na.rm = TRUE)
 print(meanPerDay)
 ```
 
 
 Median calculation
 ```{r}
-medianPerDay <- tapply(dat$steps, dat$date, median, na.rm=TRUE)
+medianPerDay <- median(stepsAday, na.rm = TRUE)
 print(medianPerDay)
 ```
 
@@ -95,9 +95,8 @@ newDataframe <- data.frame(interval=numInterval, stepsAvg = stepsAvgVar)
 mergedData <- merge(dat, newDataframe, by = c("interval"))
 
 # all NA values in attribute steps are replaced with attribute stepsAVG
-for (i in 1:dim(mergedData)[1]) {
-    if (is.na(mergedData$steps[i])) mergedData$steps[i]<-mergedData$stepsAvg[i]
-}
+missingValues <- is.na(mergedData$steps)
+mergedData$steps[missingValues] <- mergedData$stepsAvg[missingValues]
 
 #attribute stepsAvg is removed
 mergedData$stepsAvg <- NULL
@@ -110,32 +109,60 @@ dat <- mergedData
 
 a. Calculate the total number of steps taken per day
 ```{r}
-stepsAday2 <- as.vector(tapply(dat$steps, dat$date, sum, na.rm=TRUE))
+stepsAday2 <- as.vector(tapply(dat$steps, dat$date, sum))
 ```
 
 b. Make a histogram of the total number of steps taken each day
 ```{r}
-hist(stepsAday2, xlab="Steps taken", main="Histogram of Total Number of Steps Taken Each Day")
+hist(stepsAday2, xlab="Steps taken", main="Total Number of Steps Taken Each Day with missing values filled in")
 ```
 
 c. Calculate and report the mean and median of the total number of steps taken per day
 
 Mean calculation
 ```{r}
-meanPerDay2 <- tapply(dat$steps, dat$date, mean, na.rm=TRUE)
+meanPerDay2 <- mean(stepsAday2)
 print(meanPerDay2)
 ```
 
 
 Median calculation
 ```{r}
-medianPerDay2 <- tapply(dat$steps, dat$date, median, na.rm=TRUE)
+medianPerDay2 <- median(stepsAday2)
 print(medianPerDay2)
 ```
 
 
 Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-Yes these values differ from the estimates from the first part. Imputing missing data impacted on the estimates as there are no NA median values now. Also, latter histogram shows a decrease in the frequency for the range 0-5000, and there is an increase in frequency for the range 10000-15000, that is fixed NAs added up to this range of number of steps taken. The data distribution actually looks more normal. 
+Yes these values differ from the estimates from the first part. Imputing missing data impacted on the estimates, now both the mean and the median are the same.  
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+First, classDay factor variable is added to dataframe dat to indicate wether date is Weekday or Weekend
+
+```{r}
+dat$classDay <- as.factor(ifelse(weekdays(as.Date(dat$date)) %in% c("Saturday", "Sunday"), "Weekend", "Weekday"))
+
+head(dat)
+```
+
+Second, average steps taken during each interval are calculated by classDay (Weekday/Weekend)
+
+```{r}
+avgIntervalDayOfWeek <- aggregate(steps ~ interval + classDay, data=dat, FUN=mean)
+
+head(avgIntervalDayOfWeek)
+```
+
+Third, plot of average of steps taken by interval and classDay
+
+```{r}
+library(ggplot2)
+ggplot(avgIntervalDayOfWeek,aes(interval, steps)) + geom_line() + facet_grid(classDay ~ .)
+```
+
+So, answer is Yes, there is a difference in activity patterns between weekdays and weekends. Activity starts earlier on weekdays, there is a peak at starting of working hours and then it decreases for the rest of the day. In contrast, on weekends activity starts later that in weekdays and it remains almost constant throughout the day.
+
+
+
